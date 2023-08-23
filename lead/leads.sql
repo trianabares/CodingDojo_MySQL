@@ -31,12 +31,12 @@ JOIN sites ON clients.client_id = sites.client_id AND clients.client_id = 20
 GROUP BY monthname(sites.created_datetime), YEAR(sites.created_datetime)
 ORDER BY monthname(sites.created_datetime) ASC;
 
-/* EJERCICIO 5*/
+/* EJERCICIO 5 */
 
-SELECT COUNT(leads.leads_id), sites.domain_name, leads.registered_datetime FROM sites
+SELECT sites.domain_name, COUNT(leads.leads_id) AS number_of_leads FROM sites
 JOIN leads ON leads.site_id = sites.site_id
-WHERE leads.registered_datetime >= "2011-01-01"
-AND leads.registered_datetime <= "2011-02-15";
+WHERE leads.registered_datetime >= "2011-01-01" AND leads.registered_datetime < "2011-02-16"
+GROUP BY sites.site_id, sites.domain_name;
 
 /* EJERCICIO 6*/
 
@@ -51,39 +51,30 @@ ORDER BY '# of leads' DESC;
 
 /* EJERCICIO 7*/
 
-SELECT CONCAT(clients.first_name, ' ', clients.last_name) AS 'client name',  COUNT(leads.leads_id) AS '# of leads', MONTH(leads.registered_datetime) AS 'month'
+SELECT CONCAT(clients.first_name, ' ', clients.last_name) AS 'client name',  COUNT(leads.leads_id) AS '# of leads', monthname(leads.registered_datetime) AS 'month'
 FROM  clients
 JOIN sites ON clients.client_id = sites.client_id
 JOIN leads ON sites.site_id = leads.site_id
 AND leads.registered_datetime >= '2011-01-01'
 AND leads.registered_datetime < '2011-07-01'
-GROUP BY clients.client_id , MONTH(leads.registered_datetime)
+GROUP BY clients.client_id , monthname(leads.registered_datetime)
 ORDER BY '# of leads' DESC;
 
-/* EJERCICIO 8*/
+/* EJERCICIO 8 */
 
-SELECT clients.first_name, clients.last_name, sites.domain_name, COUNT(leads.leads_id)
-FROM clients
-JOIN sites ON clients.client_id = sites.client_id
-JOIN leads ON sites.site_id = leads.site_id
-GROUP BY sites.domain_name;
+SELECT c.client_id, c.first_name, c.last_name, s.site_id, s.domain_name, COUNT(l.leads_id) AS total_leads
+FROM clients AS c 
+LEFT JOIN sites AS s ON c.client_id = s.client_id
+LEFT JOIN leads AS l ON s.site_id = l.site_id
+WHERE l.registered_datetime >= "2011-01-01" AND l.registered_datetime < "2012-01-01"
+GROUP BY c.client_id, s.site_id;
 
-SELECT clients.client_id, CONCAT(clients.first_name, ' ', clients.last_name) AS 'client name', sites.domain_name, COUNT(leads.leads_id) AS '# of leads'
-FROM clients
-JOIN sites ON clients.client_id = sites.client_id
-JOIN leads ON sites.site_id = leads.site_id
-AND leads.registered_datetime >= '2011-01-01'
-AND leads.registered_datetime <= '2011-12-31'
-GROUP BY sites.domain_name
-ORDER BY clients.client_id ASC;
+/* EJERCICIO 9 */
 
-/* EJERCICIO 9*/
-
-SELECT clients.client_id, CONCAT(clients.first_name, ' ', clients.last_name) AS 'client_name', SUM(billing.amount) AS revenue, MONTH(billing.charged_datetime) AS 'month', YEAR(billing.charged_datetime) AS 'year'
-FROM clients
-JOIN billing ON clients.client_id = billing.client_id
-GROUP BY clients.client_id , MONTH(billing.charged_datetime)
-ORDER BY clients.client_id ASC , MONTH(billing.charged_datetime) ASC , YEAR(billing.charged_datetime) ASC;
+SELECT CONCAT(clients.first_name, ' ', clients.last_name) AS 'client_name', SUM(b.amount) AS total_income, monthname(b.charged_datetime) AS month, YEAR(b.charged_datetime) AS year
+FROM billing AS b
+JOIN clients ON b.client_id = clients.client_id
+GROUP BY year, month, b.client_id;
 
 /* EJERCICIO 10*/
 
